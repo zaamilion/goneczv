@@ -40,8 +40,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         #создание изображения для спрайта
-        self.image = pygame.Surface((32, 32))
-        self.image.fill(GREEN)
+        self.images = [pygame.transform.scale(pygame.image.load(f'{name}'), (50,65)) for name in ['char.png', 'char1.png']]
+        self.image = self.images[0]
 
         #создание хитбокса для спрайта
         self.rect = self.image.get_rect()
@@ -59,6 +59,13 @@ class Player(pygame.sprite.Sprite):
         # Обновление позиции игрока
         self.rect.x += self.x_velocity
         self.rect.y += self.y_velocity
+        print('проверка', self.rect.x)
+        if self.x_velocity > 0 and self.image != self.images[0]:
+            self.image = self.images[0]
+            print('да')
+        elif self.x_velocity < 0 and self.image != self.images[1]:
+            self.image = self.images[1]
+
 
 #класс для патрулирующих врагов
 class Enemy(pygame.sprite.Sprite):
@@ -201,7 +208,7 @@ for i in platforms_list:
 
 for i in collectibles_list:
     collectibles.add(i)
-
+background_sprite = pygame.image.load('Новый проект.png')
 #отдельно добавляем игрока
 player_and_platforms.add(player)
 
@@ -212,13 +219,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
     #проверяем нажатие на клавиши для перемещения
     keys = pygame.key.get_pressed()
     player.x_velocity = 0
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_a]:
         player.x_velocity = -5
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_d]:
         player.x_velocity = 5
     #условие прыжка более сложное
     if keys[pygame.K_SPACE] and player.on_ground == True:
@@ -226,14 +232,14 @@ while running:
         player.on_ground = False
 
     #гравитация для игрока
-    player.y_velocity += 0.3 
+    player.y_velocity += 0.5
 
     #обновляем значения атрибутов игрока и врагов
     player.update()
     enemies.update()
 
     #отрисовываем фон, платформы, врагов и собираемые предметы
-    screen.fill(WHITE)
+    screen.blit(background_sprite, (0,0))
     player_and_platforms.draw(screen)
     enemies.draw(screen)
     collectibles.draw(screen)
